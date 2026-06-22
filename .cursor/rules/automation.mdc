@@ -1,0 +1,43 @@
+---
+alwaysApply: true
+---
+# UI Automation Rules
+
+When writing or editing tests under `tests/` or `pages/`:
+
+## Architecture
+
+- Use **Page Object Model**: locators and UI actions in `pages/`, scenarios in `tests/`.
+- Read the base URL and credentials from environment variables; never hardcode them.
+- Keep API details out of page objects — interact with the UI only.
+
+## Locators
+
+Choose **only stable locators**.
+
+1. Prefer `data-testid`, `#id`, `get_by_role`, `get_by_placeholder`, and `get_by_label`.
+2. Scope modal and form locators to a container — avoid global XPath.
+3. Avoid brittle `contains(text())` XPath selectors and dynamic class names.
+
+## Tests
+
+- Tag every test as positive or negative (e.g. `@pytest.mark.positive`, `@pytest.mark.negative`), plus a module marker when applicable.
+- Do not add duplicate test cases — each test must cover a unique scenario; check existing tests in the module first.
+- Each module should have at least one positive and one negative scenario.
+- Do not use pytest fixtures for page objects or authentication — instantiate `LoginPage`, `ContactsPage`, etc. manually in each test using the `page` argument from `conftest.py`.
+- When a scenario requires an authenticated user, call `LoginPage.login_with_valid_credentials()` manually in that test (or once at the start of a test module when sharing session is intentional).
+- Generate dynamic test data via a shared utility module when needed.
+
+## Page objects
+
+- Extend a shared base page class for common URL and error helpers.
+- Define `login_with_valid_credentials()` **once** on `LoginPage`; all tests that need a valid login must reuse this method — do not duplicate login logic in tests or helpers.
+- Methods return `None`; use `expect_*` naming for assertions.
+- Put assertions in page objects or dedicated assertion methods, not on raw locators in test files.
+
+## Do not
+
+- Use `time.sleep()` — use Playwright `expect()` or framework-appropriate waits.
+- Put assertions directly on raw `page.locator()` in test files.
+- Add duplicate test cases that cover the same scenario as an existing test.
+- Modify `conftest.py` or files outside `tests/` and `pages/` unless explicitly requested.

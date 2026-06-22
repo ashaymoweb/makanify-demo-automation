@@ -1,0 +1,98 @@
+---
+description: Generic BDD test-case workflow — Excel generation and UI automation
+alwaysApply: true
+---
+
+# BDD & UI Automation Workflow
+
+## Workflow (in order)
+
+1. **Understand** frontend and backend code for the target module or feature.
+2. **Generate BDD test cases** as an Excel file (see Automation Testcases rules below).
+3. **Implement automation** from that Excel — only positive and negative scenarios — in the project's `tests/` and `pages/` folders.
+4. **On frontend or backend changes**, add or update tests and pages for new modules or features without modifying unrelated scenarios.
+
+## Automation scope (strict)
+
+| Allowed | Forbidden |
+|---------|-----------|
+| `tests/` | `conftest.py` |
+| `pages/` | Any other file or folder outside `tests/` and `pages/` |
+
+- Do not change existing test scenarios when adding new coverage — isolate new tests and page methods.
+- Follow the project's Playwright/Python automation conventions when writing code.
+
+---
+
+## Automation Testcases Prompt
+
+### Context
+
+- Generate automation-ready test cases that will later be converted directly into UI automation scripts.
+- Focus only on scenarios suitable for UI automation.
+
+Generate test cases using **STRICT BDD format**.
+
+### Coverage (include only)
+
+1. Positive Scenarios
+2. Negative Scenarios
+3. Validation
+4. Boundary
+5. Integration
+
+### Do not generate
+
+- Performance test cases
+- Security test cases
+- Accessibility test cases
+- Compatibility test cases
+- Exploratory test cases
+- Duplicate scenarios
+- Scenarios unsuitable for UI automation
+
+No two rows may cover the same user behavior. Before adding a row, verify the Scenario and Given/When/Then combination is not already present.
+
+### Output requirements
+
+- Generate the output in **Excel format only**.
+- **One row per test case.**
+- Follow BDD principles strictly.
+- Every test case should represent a **single user behavior**.
+- Ensure that scenarios are automation-friendly and can be directly converted into Playwright Python.
+- Avoid combining multiple assertions into one scenario.
+
+### Excel columns (exact order)
+
+1. Test Case ID
+2. Feature
+3. Scenario
+4. Given (Preconditions)
+5. When (Actions)
+6. Then (Expected Outcomes)
+
+### Additional rules
+
+- Test Case IDs must be unique.
+- Do not create duplicate test cases — each row must cover a distinct user behavior.
+- Scenario names should be concise and descriptive.
+- **Given** should contain only initial state.
+- **When** should contain only actions.
+- **Then** should contain only expected outcomes.
+- Generate output as an Excel table only.
+- Do not include explanations, notes, assumptions, or summaries.
+- Ensure each test case is directly usable for generating UI automation code.
+- While creating automation scripts, choose **only stable locators**.
+
+---
+
+## Automation implementation (from Excel)
+
+- Implement **only positive and negative** rows from the Excel file as Playwright tests.
+- Do not create duplicate automation tests — review existing `tests/` files before adding; one Excel row maps to one test function.
+- Map UI interactions to `pages/` using the Page Object Model.
+- Map scenarios to `tests/` with positive and negative markers (e.g. `@pytest.mark.positive`, `@pytest.mark.negative`).
+- Define `login_with_valid_credentials()` **once** on `LoginPage` and reuse it in every test that needs authentication — do not duplicate login logic.
+- Do not use pytest fixtures for page objects or auth; instantiate page classes manually in tests and call login only when the scenario requires it.
+- Use environment variables for credentials and base URLs; never hardcode secrets.
+- Choose **only stable locators** — prefer `data-testid`, `#id`, `get_by_role`, and `get_by_placeholder`; avoid brittle XPath and text-based selectors.

@@ -28,10 +28,13 @@ python -m pytest tests/
 
 ## BDD rules & test cases
 
-See the [makanify-demo-docs](https://github.com/ashaymoweb/makanify-demo-docs) repo for:
+Included in this repo:
 
-- `BDD_AUTOMATION_RULES.md`
-- `makanify_bdd_test_cases.xlsx`
+- `BDD_AUTOMATION_RULES.md` — workflow and automation coding rules
+- `makanify_bdd_test_cases.xlsx` — BDD test cases (Excel)
+- `.cursor/rules/` — Cursor agent rules for BDD + automation
+- `docs/playwright-mcp-setup.md` — Playwright MCP setup
+- `playwright-mcp/run-all-tests.js` — optional MCP batch runner
 
 ## Structure
 
@@ -39,7 +42,8 @@ See the [makanify-demo-docs](https://github.com/ashaymoweb/makanify-demo-docs) r
 pages/          # Page Object Model
 tests/          # Pytest scenarios (positive / negative)
 utilities/      # Test data helpers
-conftest.py     # Playwright browser fixture (do not duplicate login logic in fixtures)
+conftest.py     # Playwright browser fixture
+docs/           # MCP setup guide
 ```
 
 ## Conventions
