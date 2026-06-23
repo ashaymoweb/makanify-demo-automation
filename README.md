@@ -26,13 +26,13 @@ python -m pytest tests/ -m negative
 python -m pytest tests/
 ```
 
-## BDD rules & test cases
+## Automation rules & test cases
 
 Included in this repo:
 
-- `BDD_AUTOMATION_RULES.md` — workflow and automation coding rules
+- `AUTOMATION_RULES.md` — workflow and automation coding rules
 - `makanify_bdd_test_cases.xlsx` — BDD test cases (Excel)
-- `.cursor/rules/` — Cursor agent rules for BDD + automation
+- `.cursor/rules/` — agent rules for automation workflow
 - `docs/playwright-mcp-setup.md` — Playwright MCP setup
 - `playwright-mcp/run-all-tests.js` — optional MCP batch runner
 
