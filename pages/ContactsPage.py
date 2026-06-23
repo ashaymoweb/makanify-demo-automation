@@ -43,6 +43,11 @@ class ContactsPage(BasePage):
         phone: str = "",
         pin_code: str = "",
         gender: str = "",
+        address_line1: str = "",
+        address_line2: str = "",
+        company_name: str = "",
+        work_email: str = "",
+        work_phone_number: str = "",
     ) -> None:
         if first_name:
             self.locators.first_name_input.fill(first_name)
@@ -56,6 +61,16 @@ class ContactsPage(BasePage):
             self.locators.pincode_input.fill(pin_code)
         if gender:
             self.locators.gender_radio(gender).check()
+        if address_line1:
+            self.locators.address_line1_input.fill(address_line1)
+        if address_line2:
+            self.locators.address_line2_input.fill(address_line2)
+        if company_name:
+            self.locators.company_name_input.fill(company_name)
+        if work_email:
+            self.locators.work_email_input.fill(work_email)
+        if work_phone_number:
+            self.locators.work_phone_input.fill(work_phone_number)
 
     def select_gender(self, gender: str) -> None:
         self.locators.gender_radio(gender).check()

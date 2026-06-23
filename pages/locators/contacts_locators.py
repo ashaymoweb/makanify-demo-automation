@@ -7,13 +7,25 @@ from pages.locators.xpath_utils import (
     radio_by_label,
     table_cell,
     table_header,
+    textarea_by_label,
 )
 
 
 class ContactsLocators:
     """XPath locators for the contacts page and add-contact modal."""
 
-    TABLE_HEADERS = ("Name", "Email", "Phone", "Company", "Updated")
+    TABLE_HEADERS = (
+        "Name",
+        "Email",
+        "Phone",
+        "Gender",
+        "Address line 1",
+        "Address line 2",
+        "Company",
+        "Work email",
+        "Work phone",
+        "Updated",
+    )
     MODAL_HEADING = "Add Contact"
     EMPTY_STATE_TEXT = "No contacts found."
     PHONE_VALIDATION_ERROR = "Enter a valid 10-digit phone number."
@@ -45,6 +57,11 @@ class ContactsLocators:
         self.email_input = input_by_label(self.modal, "Email")
         self.phone_input = input_by_label(self.modal, "Phone")
         self.pincode_input = input_by_label(self.modal, "PIN code")
+        self.address_line1_input = textarea_by_label(self.modal, "Address line 1")
+        self.address_line2_input = textarea_by_label(self.modal, "Address line 2")
+        self.company_name_input = input_by_label(self.modal, "Company name")
+        self.work_email_input = input_by_label(self.modal, "Work email")
+        self.work_phone_input = input_by_label(self.modal, "Work phone number")
         self.save_contact_button = button_by_text(self.modal, "Save Contact")
         self.cancel_button = button_by_text(self.modal, "Cancel")
         self.empty_state = self.contacts_main.locator(

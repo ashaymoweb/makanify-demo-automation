@@ -36,6 +36,11 @@ def test_contacts_pos_002_add_contact_with_valid_data(page):
         phone=phone,
         pin_code=pin_code,
         gender="Female",
+        address_line1="12 MG Road",
+        address_line2="Near City Mall",
+        company_name="Acme Realty",
+        work_email=RandomDataGenerator.random_email(),
+        work_phone_number=RandomDataGenerator.random_indian_mobile(),
     )
     contacts_page.submit_contact_form()
     contacts_page.expect_modal_closed()

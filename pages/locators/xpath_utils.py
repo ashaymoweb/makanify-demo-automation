@@ -7,6 +7,12 @@ def input_by_label(container: Locator, label: str) -> Locator:
     )
 
 
+def textarea_by_label(container: Locator, label: str) -> Locator:
+    return container.locator(
+        f'xpath=.//label[contains(normalize-space(),"{label}")]/parent::div//textarea'
+    )
+
+
 def button_by_text(container: Locator, text: str) -> Locator:
     return container.locator(
         f'xpath=.//button[normalize-space()="{text}"]'
