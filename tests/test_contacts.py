@@ -108,6 +108,18 @@ def test_contacts_pos_005_add_contact_with_required_fields_only(page):
 
 
 @pytest.mark.contacts
+@pytest.mark.positive
+def test_contacts_pos_006_add_contact_button_opens_modal(page):
+    login_page = LoginPage(page)
+    contacts_page = ContactsPage(page)
+    login_page.login_with_valid_credentials()
+    contacts_page.expect_loaded()
+
+    contacts_page.open_add_contact_modal()
+    contacts_page.expect_modal_open()
+
+
+@pytest.mark.contacts
 @pytest.mark.negative
 def test_contacts_neg_001_search_with_no_matches_shows_empty_state(page):
     login_page = LoginPage(page)
@@ -117,6 +129,25 @@ def test_contacts_neg_001_search_with_no_matches_shows_empty_state(page):
 
     contacts_page.search("zzz-nonexistent-contact-99999")
     contacts_page.expect_no_contacts_found()
+
+
+@pytest.mark.contacts
+@pytest.mark.negative
+def test_contacts_neg_003_short_phone_number_shows_validation_error(page):
+    login_page = LoginPage(page)
+    contacts_page = ContactsPage(page)
+    login_page.login_with_valid_credentials()
+    contacts_page.expect_loaded()
+
+    contacts_page.open_add_contact_modal()
+    contacts_page.fill_contact_form(
+        first_name="Short",
+        phone="12345",
+        pin_code=RandomDataGenerator.random_pincode(),
+    )
+    contacts_page.submit_contact_form()
+    contacts_page.expect_phone_validation_error()
+    contacts_page.expect_modal_open()
 
 
 @pytest.mark.contacts

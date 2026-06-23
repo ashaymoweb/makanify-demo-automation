@@ -50,6 +50,16 @@ def test_login_pos_004_authenticated_user_redirected_from_login_page(page):
 
 
 @pytest.mark.login
+@pytest.mark.positive
+def test_login_pos_005_sign_in_enabled_when_both_fields_filled(page):
+    login_page = LoginPage(page)
+    login_page.open_login()
+    login_page.fill_email("user@example.com")
+    login_page.fill_password("password")
+    login_page.expect_sign_in_enabled()
+
+
+@pytest.mark.login
 @pytest.mark.negative
 def test_login_neg_001_invalid_credentials_display_error(page):
     login_page = LoginPage(page)
@@ -85,3 +95,11 @@ def test_login_neg_004_unauthenticated_contacts_access_redirects_to_login(page):
     contacts_page = ContactsPage(page)
     contacts_page.open_contacts()
     login_page.expect_on_login_page()
+
+
+@pytest.mark.login
+@pytest.mark.negative
+def test_login_neg_005_sign_in_disabled_when_both_fields_empty(page):
+    login_page = LoginPage(page)
+    login_page.open_login()
+    login_page.expect_sign_in_disabled()

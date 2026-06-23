@@ -7,6 +7,7 @@ class ContactsLocators:
     TABLE_HEADERS = ("Name", "Email", "Phone", "Company", "Updated")
     MODAL_HEADING = "Add Contact"
     EMPTY_STATE_TEXT = "No contacts found."
+    PHONE_VALIDATION_ERROR = "Enter a valid 10-digit phone number."
     MODAL_ROOT_XPATH = "xpath=//h2[normalize-space()='Add Contact']/parent::div"
 
     def __init__(self, page: Page):
@@ -25,6 +26,9 @@ class ContactsLocators:
         self.save_contact_button = self.modal.get_by_role("button", name="Save Contact")
         self.cancel_button = self.modal.get_by_role("button", name="Cancel")
         self.empty_state = page.get_by_text(self.EMPTY_STATE_TEXT)
+
+    def modal_error(self, message: str) -> Locator:
+        return self.modal.get_by_text(message)
 
     def column_header(self, name: str) -> Locator:
         return self.page.get_by_role("columnheader", name=name)

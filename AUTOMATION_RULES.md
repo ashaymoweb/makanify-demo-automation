@@ -103,6 +103,7 @@ No two rows may cover the same user behavior. Before adding a row, verify the Sc
 - Do not include explanations, notes, assumptions, or summaries.
 - Ensure each test case is directly usable for generating UI automation code.
 - While creating automation scripts, choose **only stable locators**.
+- After implementing any test cases, execute them against the application and resolve any failures encountered. Ensure all test cases pass successfully before considering the implementation complete.
 
 ---
 
