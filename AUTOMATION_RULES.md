@@ -12,7 +12,7 @@
 
 When the user asks for **any frontend or backend code change** — new feature, bug fix, UI update, API change, validation change — update automation in the **same task**, without waiting to be asked separately.
 
-**FE/BE code is the source of truth for locators.** The **provided BDD file** is the source of truth for **what** to automate. Locators, page objects, and pytest tests must reflect the **actual** implemented UI/API and the **provided** BDD rows — never assumptions or copy-paste from other modules. See [FE/BE → automation sync flow](#febe--automation-sync-flow-source-of-truth).
+**FE/BE code is the source of truth for functionality and user-visible behavior. Automation owns the locator strategy. Locators must be derived from the current DOM structure and implemented using stable, semantic, relative XPath expressions scoped to stable containers.**
 
 **Do not create, edit, or regenerate** the provided BDD file — it is supplied externally. If a BDD row does not match the current FE/BE, report the gap; do not modify the Excel file unless the user explicitly asks.
 
@@ -47,7 +47,7 @@ FE / BE code  ───────────────┘              ↑_
 | Layer | Source | Rule |
 |-------|--------|------|
 | **BDD test cases** | **Provided BDD file** (read-only; any `.xlsx` filename) | Defines scenarios to automate. **Do not generate or update this file.** Implement only rows that exist in the provided file. |
-| **FE / BE** | Implementation | Source of truth for locators — actual markup, labels, roles, routes, validation messages. Every BDD step must map to real UI/API behavior in the code. |
+| FE / BE | Implementation | Source of truth for functionality, validation, routes, labels, and user-visible behavior. Automation owns locator strategy. |
 | **Locators** | FE DOM + [Locator strategy rules](#locator-strategy-rules) | Scoped relative XPath only, derived after reading FE/BE and the BDD row. Each expression must resolve a real element in the current markup. |
 | **Page objects** | Locators + BDD When/Then | Actions and assertions implement BDD steps; no raw locators in tests. |
 | **Tests** | Provided BDD rows + page objects | One test per BDD row; tests call page methods only. |
@@ -59,7 +59,7 @@ FE / BE code  ───────────────┘              ↑_
 2. **Read** the BDD row(s) for the feature — Given, When, Then.
 3. **Open and read** the FE component(s), page(s), and related BE handlers for that feature.
 4. **Record** actual copy from FE/BE: headings, button labels, placeholders, error messages, routes, modal titles, table columns.
-5. **Confirm** each BDD step maps to the implementation and each interactive element can be targeted with a stable scoped XPath per the [locator strategy rules](#locator-strategy-rules) and [testable form markup](#testable-form-markup-fe--automation-contract).
+5. Confirm each BDD step maps to the implementation and each interactive element can be targeted with stable, semantic, relative XPath expressions according to the locator strategy rules.
 6. **Then** implement locators → page objects → tests in that order.
 
 ### Before writing or updating FE / BE
@@ -73,7 +73,7 @@ FE / BE code  ───────────────┘              ↑_
 - Create, edit, or regenerate the provided BDD file (unless the user explicitly requests it).
 - Hardcode a specific BDD filename in rules, code, or docs — always use the file supplied for the project.
 - Write tests or locators from memory, tickets, or other projects without reading the **provided BDD file** and current FE/BE code.
-- Add locators that assume markup the FE does not implement (e.g. label association when `htmlFor`/`id` is missing).
+- Create XPath expressions based on assumptions instead of inspecting the current DOM structure.
 - Copy locators from one module into another without verifying the target FE matches.
 - Ship automation in a later PR than the FE/BE it depends on.
 - Consider automation complete without executing tests against the live app.
@@ -82,8 +82,8 @@ FE / BE code  ───────────────┘              ↑_
 
 | Symptom | Action |
 |---------|--------|
-| Locator not found | Inspect FE markup first; update scoped relative XPath to match reality, or fix FE so stable label/text/container anchors exist — never switch to CSS selectors, `get_by_*` shortcuts, or unscoped global XPath. |
-| Test assertion mismatch | Compare BDD Then clause to actual UI text/behavior in FE; update test/locator or fix FE — keep BDD row, FE, and automation aligned. |
+| Locator not found | Inspect FE markup first and update scoped relative XPath to match the current DOM structure. Prefer container-first design and reusable dynamic form locators. Never switch to CSS selectors, Playwright get_by_* APIs, positional indexes, or absolute XPath. |
+| Test assertion mismatch | Compare the BDD Then clause with the current application behavior and update page objects, assertions, or locators as necessary while keeping the BDD scenario aligned. |
 | BDD row does not match FE/BE | **Report the gap** to the user — do not edit the Excel file or invent automation that bypasses the mismatch. |
 | New UI, no BDD row in provided file | **Stop** — request an updated BDD file from the provider; do not add rows yourself. |
 | BDD file path unknown | Ask the user or check project README / config for the provided BDD file location — do not assume a default filename. |
@@ -95,7 +95,7 @@ FE / BE code  ───────────────┘              ↑_
 Follow the [FE/BE → automation sync flow](#febe--automation-sync-flow-source-of-truth). Summary:
 
 1. **Locate and read** the provided BDD file for the target feature (input only — do not edit).
-2. **Read** frontend and backend code for that feature (source of truth for locators).
+2. Read frontend and backend code for that feature (source of truth for functionality and user-visible behavior).
 3. **Implement locators** in `pages/locators/` as scoped relative XPath from the current FE DOM, mapped to BDD When/Then steps.
 4. **Implement or update** page actions and pytest tests from the provided BDD rows — only positive and negative scenarios as defined in the file.
 5. **Execute** tests against the running app; loop back to FE/BE or automation until all pass.
@@ -144,47 +144,6 @@ The **provided BDD file** is supplied externally (any `.xlsx` filename). Automat
 - While creating automation scripts, use **XPath exclusively** per [Locator strategy rules](#locator-strategy-rules).
 - After implementing any test cases, execute them against the application and resolve any failures encountered. Ensure all test cases pass successfully before considering the implementation complete.
 - **FE/BE → automation sync:** Locators, page objects, and tests must be derived from the **provided BDD file** and kept in sync with actual FE/BE code — see [FE/BE → automation sync flow](#febe--automation-sync-flow-source-of-truth). Never author automation from assumptions alone.
-- **Testable form markup (FE + automation contract):** See [Testable form markup](#testable-form-markup-fe--automation-contract) below. Applies to every new form, modal, and field — including greenfield projects with no existing reference screens.
-
----
-
-## Testable form markup (FE + automation contract)
-
-Use this contract whenever **frontend**, **backend-driven UI**, or **automation** touches a form. It is stack- and project-agnostic.
-
-### Principle
-
-A field is **testable** only when tools (automation, assistive tech) can find it by **accessible name** or **stable id** — not by layout, CSS classes, or DOM sibling position.
-
-### Frontend contract (build this from the first form)
-
-For every visible input, select, or textarea:
-
-1. **Expose an accessible name** using one primary method (pick one per field and use it consistently across the app):
-   - `<label for="unique-id">` paired with `id="unique-id"` on the control
-   - Control nested inside `<label>`
-   - `aria-label` on the control
-   - `aria-labelledby` pointing at visible label text
-   - `data-testid` (or equivalent stable test attribute) when a visible label is not appropriate
-2. **Keep the accessible name stable** — use the field’s semantic name (e.g. `Email`, `First name`). Put decorative or optional markers (`*`, `(optional)`, hints) in separate elements so they are **not** part of the name used for locating.
-3. **Use unique, predictable ids** — scope by feature if needed (e.g. `signup-email`, `edit-contact-phone`); never rely on auto-generated or positional ids.
-4. **Scope containers semantically** — forms, dialogs, and modals should use appropriate roles (`form`, `dialog`) or a stable wrapper id / `data-testid` so locators stay local to that surface.
-5. **Apply the same pattern everywhere** — every form in the project follows the same association approach; do not mix labelled and unlabelled fields.
-
-### Automation contract
-
-1. **Use XPath exclusively** — express every locator as a stable, semantic, **relative** XPath per [Locator strategy rules](#locator-strategy-rules).
-2. **Anchor on business meaning** — build XPath from visible labels, button/link text, headings, placeholders, and stable parent-child relationships confirmed in FE markup (use `normalize-space()` where needed).
-3. **Scope first** — root each XPath in the nearest stable container (form, dialog, modal, section, table); avoid page-global expressions when a container exists.
-4. **Fix FE before fragile XPath** — if no stable relative XPath is possible, treat it as an FE defect (missing label text, heading, or container). Do not compensate with CSS classes, generated ids, positional indexes, or absolute XPath.
-5. **Verify before merge** — confirm each XPath resolves exactly one target in the running app before merging locator changes.
-
-### Do not
-
-- Ship visually labelled fields without text or structure that XPath can anchor on reliably.
-- Embed required `*` inside the label text used as an XPath text match when it can be excluded via `normalize-space()` and separate elements.
-- Use `get_by_role`, `get_by_label`, `#id`, CSS selectors, or `data-testid` locators in automation code — XPath only.
-- Merge locator PRs when the XPath is unscoped, absolute, index-based, or does not resolve in the live UI.
 
 ---
 
@@ -203,45 +162,136 @@ For every visible input, select, or textarea:
 
 ## Locator strategy rules
 
-**XPath is the only permitted locator type** in this framework. All AI-generated and manually written locators must follow these rules consistently.
+XPath is the only permitted locator type in this framework.
 
-### Required
+Automation owns locator strategy. Frontend and backend define functionality, but locator implementation belongs to automation.
 
-- Use **XPath exclusively** for all UI locators throughout the framework (e.g. Playwright: `page.locator("xpath=...")`).
-- Create **stable, semantic, relative** XPath expressions based on business labels, visible text, or stable parent-child relationships visible in the FE markup.
-- **Scope** every XPath to the nearest stable container (form, modal, dialog, section, table, etc.) to avoid ambiguity and collisions.
-- Store page-specific XPath definitions in dedicated files under `pages/locators/` and reference them **only** through page objects and step methods — never in test files.
-- **Reuse** existing XPath locators whenever possible; avoid duplicate definitions.
-- Modify existing locators only when required to improve stability or accommodate UI changes.
-- Prefer **parent-child**, **sibling**, and **ancestor-descendant** relationships over positional indexes.
-- Use `normalize-space()` and stable text-based conditions where applicable.
-- Keep expressions **readable, maintainable, and resilient** to layout changes within the scoped container.
-- Before introducing a new locator, verify whether a more stable and reusable scoped relative XPath already exists in the locator files.
+### Generic form strategy
 
-### Avoid (unless no stable alternative exists)
+Repeated forms and modals must use reusable dynamic locator builders rather than hardcoded field locators.
 
-- Absolute XPath (`/html/body/...`).
-- Dynamic attributes, CSS classes, and generated IDs as primary anchors.
-- Positional indexes (`[1]`, `[2]`), `nth()`, and fragile deep DOM hierarchies.
-- Unscoped page-level XPath when a stable container is available.
-- Non-XPath locator APIs (`get_by_role`, `get_by_label`, `get_by_text`, `#id`, CSS selectors) in `pages/locators/` or tests.
-
-### Examples (patterns — adapt to actual FE markup)
+Example:
 
 ```python
-# Modal field scoped by dialog heading + label text
-page.locator(
-    'xpath=//div[@role="dialog"][.//h2[normalize-space()="Add Contact"]]'
-    '//label[contains(normalize-space(),"First name")]/following-sibling::input'
-)
+def input_by_label(container, label):
+    return container.locator(
+        f'xpath=.//label[contains(normalize-space(),"{label}")]/parent::div/input'
+    )
+```
+### Required
 
-# Button by visible text within a section
-page.locator(
-    'xpath=//main[.//h1[normalize-space()="Contacts"]]//button[normalize-space()="Add Contact"]'
-)
+- Use XPath exclusively for all UI locators.
+- Create stable, semantic, relative XPath expressions.
+- Scope every XPath to the nearest stable container (form, modal, section, table, drawer, tab, etc.).
+- Never use page-global XPath when a stable container exists.
+- Separate container locators from child locators.
+- Reuse container locators throughout the module.
+- Prefer parent-child relationships over positional indexes.
+- Prefer ancestor-descendant and sibling relationships over deep DOM traversal.
+- Use normalize-space() when matching visible text.
+- Keep XPath expressions readable and maintainable.
+- Store locators in page-specific locator files.
+- Reuse existing locators whenever possible.
+- Modify locators only when required for stability or UI changes.
+- Prefer reusable locator builders over module-specific field locators whenever a common pattern exists.
+
+Use:
+
+```python
+self.first_name_input = input_by_label(self.modal, "First name")
 ```
 
----
+### Container strategy
+
+Always separate container locators from child locators.
+
+Example:
+
+```python
+CONTACT_MODAL =
+'//h2[normalize-space()="Add Contact"]/ancestor::div[contains(@class,"rounded-lg")]'
+```
+
+Then:
+
+```python
+FIRST_NAME =
+'.//label[contains(normalize-space(),"First name")]/parent::div/input'
+```
+
+Use:
+
+```python
+self.modal = page.locator(f"xpath={CONTACT_MODAL}")
+self.first_name_input = self.modal.locator(f"xpath={FIRST_NAME}")
+```
+
+### Validation rule
+
+Before finalizing a locator, verify that it resolves to the intended element and remains stable during execution. Validation may use count(), visibility checks, or assertions depending on the scenario.
+
+### Avoid
+
+- Absolute XPath.
+- CSS selectors.
+- get_by_role().
+- get_by_label().
+- get_by_text().
+- nth().
+- Positional indexes.
+- Dynamic CSS classes.
+- Generated IDs.
+- Page-global XPath.
+- Deep DOM hierarchies.
+
+## Container-first design
+
+Page objects should separate containers from elements.
+
+Example:
+
+```python
+CONTACT_MODAL
+CONTACT_TABLE
+CONTACT_FORM
+```
+
+Elements must be located relative to their parent container.
+
+Avoid long page-global XPath expressions.
+
+Prefer:
+
+```python
+self.modal.locator(FIRST_NAME)
+```
+
+instead of:
+
+```python
+page.locator("//h2[...]//label[...]")
+```
+
+This improves maintainability and prevents collisions when the application grows.
+
+## Shared locator utilities
+
+Common patterns must be centralized and reused across modules.
+
+Examples:
+
+```python
+input_by_label(container, label)
+button_by_text(container, text)
+dropdown_by_label(container, label)
+checkbox_by_label(container, label)
+table_cell(container, text)
+error_message(container, text)
+```
+
+Avoid recreating identical XPath patterns inside individual page locator files.
+
+New modules must reuse shared locator utilities whenever possible.
 
 ## UI automation coding rules
 
@@ -261,7 +311,7 @@ Follow [Locator strategy rules](#locator-strategy-rules) — **XPath exclusively
 1. Use scoped relative XPath anchored on business labels, visible text, and stable containers.
 2. Define all XPath in `pages/locators/`; access only through page objects.
 3. Verify each XPath resolves exactly one element in the live UI before merge.
-4. Align anchors with FE markup per [Testable form markup](#testable-form-markup-fe--automation-contract) — stable visible labels and headings make XPath maintainable.
+4. Keep locators aligned with the current DOM structure and business-visible text to maintain stability.
 
 ### Locator file rules
 
@@ -279,6 +329,8 @@ Follow [Locator strategy rules](#locator-strategy-rules) — **XPath exclusively
 - Do not use pytest fixtures for page objects or authentication — instantiate `LoginPage`, `ContactsPage`, etc. manually in each test using the `page` argument from `conftest.py`.
 - When a scenario requires an authenticated user, call `LoginPage.login_with_valid_credentials()` manually in that test (or once at the start of a test module when sharing session is intentional).
 - Generate dynamic test data via a shared utility module when needed.
+- After creating or updating tests, execute them against the running application and fix all failures before considering the implementation complete.
+- Test implementation is not complete until all affected scenarios pass successfully.
 
 ### Page objects
 
@@ -297,3 +349,9 @@ Follow [Locator strategy rules](#locator-strategy-rules) — **XPath exclusively
 - Modify `conftest.py` or files outside `tests/` and `pages/` unless explicitly requested.
 - Create, edit, or regenerate the provided BDD file unless the user explicitly asks.
 - Hardcode a specific BDD filename — use the file path supplied for the project.
+- Do not hardcode complete page-level XPath expressions repeatedly.
+- Do not duplicate field locators across modules.
+- Do not define the same XPath in multiple files.
+- Do not locate child elements directly from page when a stable container exists.
+- Do not create separate locators for identical form patterns; use shared locator builder methods.
+- Do not use waits or sleeps to compensate for unstable locators.

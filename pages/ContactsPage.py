@@ -25,6 +25,8 @@ class ContactsPage(BasePage):
         with self.page.expect_response(
             lambda response: "/contact" in response.url
             and response.request.method == "GET"
+            and "search=" in response.url,
+            timeout=15000,
         ):
             self.locators.search_input.fill(query)
 
@@ -75,6 +77,10 @@ class ContactsPage(BasePage):
         expect(self.locators.contact_cell(name)).to_be_visible(timeout=timeout)
 
     def expect_no_contacts_found(self, timeout: int = 15000) -> None:
+        spinner = self.locators.contacts_main.locator(
+            "xpath=.//div[contains(@class,'animate-spin')]"
+        )
+        expect(spinner).to_be_hidden(timeout=timeout)
         expect(self.locators.empty_state).to_be_visible(timeout=timeout)
 
     def sign_out(self) -> None:
