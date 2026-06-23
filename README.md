@@ -31,7 +31,7 @@ python -m pytest tests/
 Included in this repo:
 
 - `AUTOMATION_RULES.md` — workflow and automation coding rules
-- `makanify_bdd_test_cases.xlsx` — BDD test cases (Excel)
+- Provided BDD file (Excel) — test cases supplied for the project (this repo: `makanify_bdd_test_cases.xlsx`)
 - `.cursor/rules/` — agent rules for automation workflow
 - `docs/playwright-mcp-setup.md` — Playwright MCP setup
 - `playwright-mcp/run-all-tests.js` — optional MCP batch runner
