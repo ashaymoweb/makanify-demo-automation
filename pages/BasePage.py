@@ -6,7 +6,7 @@ from pages.locators.base_locators import BaseLocators
 
 
 class BasePage:
-    """Shared Playwright helpers for the Makanify demo frontend."""
+    """Shared Playwright helpers for the demo frontend."""
 
     def __init__(self, page: Page):
         self.page = page
