@@ -115,3 +115,16 @@ No two rows may cover the same user behavior. Before adding a row, verify the Sc
 - Do not use pytest fixtures for page objects or auth; instantiate page classes manually in tests and call login only when the scenario requires it.
 - Use environment variables for credentials and base URLs; never hardcode secrets.
 - Choose **only stable locators** — prefer `data-testid`, `#id`, `get_by_role`, and `get_by_placeholder`; avoid brittle XPath and text-based selectors.
+
+### Locator Management Rules
+
+- Maintain separate locator files for each page/module to ensure clear structure and maintainability.
+- Use semantic and stable relative XPath locators when application changes cannot be controlled.
+- Access locators only through page classes or test step methods; do not hardcode locators inside test cases.
+- Centralize all locator definitions so that UI changes require updates in a single location only.
+- Prefer business-oriented locators based on labels or stable attributes over indexes, CSS classes, or absolute XPath.
+- Modify existing locators only when necessary to improve stability or accommodate UI changes. Avoid unnecessary locator changes.
+- Reuse existing locators whenever possible instead of creating duplicate definitions.
+- Keep test cases independent of locator implementation details by interacting only through page objects and step methods.
+- Avoid using `nth()`, dynamic CSS classes, and absolute XPath unless no stable alternative exists.
+- Ensure locator changes are backward-compatible and do not impact unrelated test scenarios.

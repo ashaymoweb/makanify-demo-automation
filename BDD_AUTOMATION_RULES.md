@@ -139,6 +139,19 @@ Choose **only stable locators**.
 2. Scope modal and form locators to a container — avoid global XPath.
 3. Avoid brittle `contains(text())` XPath selectors and dynamic class names.
 
+### Locator Management Rules
+
+- Maintain separate locator files for each page/module to ensure clear structure and maintainability.
+- Use semantic and stable relative XPath locators when application changes cannot be controlled.
+- Access locators only through page classes or test step methods; do not hardcode locators inside test cases.
+- Centralize all locator definitions so that UI changes require updates in a single location only.
+- Prefer business-oriented locators based on labels or stable attributes over indexes, CSS classes, or absolute XPath.
+- Modify existing locators only when necessary to improve stability or accommodate UI changes. Avoid unnecessary locator changes.
+- Reuse existing locators whenever possible instead of creating duplicate definitions.
+- Keep test cases independent of locator implementation details by interacting only through page objects and step methods.
+- Avoid using `nth()`, dynamic CSS classes, and absolute XPath unless no stable alternative exists.
+- Ensure locator changes are backward-compatible and do not impact unrelated test scenarios.
+
 ### Tests
 
 - Tag every test as positive or negative (e.g. `@pytest.mark.positive`, `@pytest.mark.negative`), plus a module marker when applicable.
