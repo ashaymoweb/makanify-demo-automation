@@ -4,12 +4,30 @@ General reference for AI agents and developers. Cursor-specific rule files live 
 
 ---
 
+## Mandatory: FE/BE change sync (always apply)
+
+When the user asks for **any frontend or backend code change** — new feature, bug fix, UI update, API change, validation change — update automation in the **same task**, without waiting to be asked separately.
+
+**Required order after the app code change:**
+
+1. **Understand** what UI behavior changed (read the modified FE/BE files).
+2. **Update** `makanify_bdd_test_cases.xlsx` — add, update, or remove rows for the affected feature only (strict BDD columns; no duplicates).
+3. **Update** `pages/` — locators and actions for changed UI (stable locators only).
+4. **Update** `tests/` — add or adjust positive and negative pytest tests for changed Excel rows only.
+5. **Leave unchanged** — unrelated modules, unrelated Excel rows, and unrelated test scenarios.
+
+**Do not** consider the FE/BE task complete until steps 2–4 are done for every user-visible behavior that changed.
+
+If the change has **no UI impact** (e.g. internal refactor only), state that briefly and skip Excel/tests updates.
+
+---
+
 ## Workflow (in order)
 
 1. **Understand** frontend and backend code for the target module or feature.
-2. **Generate BDD test cases** as an Excel file (see [Automation Testcases Prompt](#automation-testcases-prompt) below).
-3. **Implement automation** from that Excel — only positive and negative scenarios — in the project's `tests/` and `pages/` folders.
-4. **On frontend or backend changes**, add or update tests and pages for new modules or features without modifying unrelated scenarios.
+2. **Generate or update BDD test cases** in `makanify_bdd_test_cases.xlsx` (see [Automation Testcases Prompt](#automation-testcases-prompt) below).
+3. **Implement or update automation** from that Excel — only positive and negative scenarios — in `tests/` and `pages/`.
+4. **On every subsequent frontend or backend change**, repeat: update Excel → update `pages/` → update `tests/` for the affected feature only.
 
 ---
 
@@ -18,7 +36,8 @@ General reference for AI agents and developers. Cursor-specific rule files live 
 | Allowed   | Forbidden                                      |
 |-----------|------------------------------------------------|
 | `tests/`  | `conftest.py`                                  |
-| `pages/`  | Any other file or folder outside `tests/` and `pages/` |
+| `pages/`  | Any other file or folder outside the allowed list |
+| `makanify_bdd_test_cases.xlsx` (add/update rows when FE/BE changes) | |
 
 - Do not change existing test scenarios when adding new coverage — isolate new tests and page methods.
 - Follow the [UI automation coding rules](#ui-automation-coding-rules) when writing code.

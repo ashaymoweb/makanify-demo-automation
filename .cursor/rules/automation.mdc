@@ -3,6 +3,18 @@ alwaysApply: true
 ---
 # UI Automation Rules
 
+## FE/BE change trigger
+
+If the user requests a **frontend or backend code change**, you must also update in the same task:
+
+1. `makanify_bdd_test_cases.xlsx` — affected BDD rows only
+2. `pages/` — page objects for changed UI
+3. `tests/` — positive and negative pytest tests for changed rows only
+
+Do not finish the FE/BE task without these updates when UI behavior changed. See `bdd-automation-workflow.mdc` for full rules.
+
+---
+
 When writing or editing tests under `tests/` or `pages/`:
 
 ## Architecture
