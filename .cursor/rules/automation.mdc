@@ -7,11 +7,12 @@ alwaysApply: true
 
 If the user requests a **frontend or backend code change**, you must also update in the same task:
 
-1. `makanify_bdd_test_cases.xlsx` — affected BDD rows only
-2. `pages/` — page objects for changed UI
-3. `tests/` — positive and negative pytest tests for changed rows only
+1. **Locate and read** the provided BDD file for affected rows (do not edit the file)
+2. `pages/locators/` — from current FE DOM; verify each locator resolves
+3. `pages/` — page actions aligned with BDD When/Then steps
+4. `tests/` — one BDD row per test; execute and pass before done
 
-Do not finish the FE/BE task without these updates when UI behavior changed. See `bdd-automation-workflow.mdc` for full rules.
+**Do not create or update the provided BDD file** unless the user explicitly asks. **FE/BE is source of truth for locators** — never hardcode a BDD filename. See `AUTOMATION_RULES.md` → *FE/BE → automation sync flow*.
 
 ---
 
@@ -22,6 +23,7 @@ When writing or editing tests under `tests/` or `pages/`:
 - Use **Page Object Model**: locators and UI actions in `pages/`, scenarios in `tests/`.
 - Read the base URL and credentials from environment variables; never hardcode them.
 - Keep API details out of page objects — interact with the UI only.
+- **Provided BDD + FE/BE in sync** — read the BDD file (read-only) and FE/BE before locators or tests (`AUTOMATION_RULES.md` → *FE/BE → automation sync flow*).
 
 ## Locators
 
@@ -30,6 +32,7 @@ Choose **only stable locators**.
 1. Prefer `data-testid`, `#id`, `get_by_role`, `get_by_placeholder`, and `get_by_label`.
 2. Scope modal and form locators to a container — avoid global XPath.
 3. Avoid brittle `contains(text())` XPath selectors and dynamic class names.
+4. Follow the **Testable form markup** contract in `AUTOMATION_RULES.md` — every field needs a stable accessible name or id; fix FE markup before CSS/structural locator workarounds; verify each field resolves before merge.
 
 ## Locator Management Rules
 
@@ -66,3 +69,5 @@ Choose **only stable locators**.
 - Put assertions directly on raw `page.locator()` in test files.
 - Add duplicate test cases that cover the same scenario as an existing test.
 - Modify `conftest.py` or files outside `tests/` and `pages/` unless explicitly requested.
+- Create, edit, or regenerate the provided BDD file unless the user explicitly asks.
+- Hardcode a specific BDD filename — use the file path supplied for the project.

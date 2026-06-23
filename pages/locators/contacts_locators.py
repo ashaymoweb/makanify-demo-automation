@@ -8,7 +8,6 @@ class ContactsLocators:
     MODAL_HEADING = "Add Contact"
     EMPTY_STATE_TEXT = "No contacts found."
     PHONE_VALIDATION_ERROR = "Enter a valid 10-digit phone number."
-    MODAL_ROOT_XPATH = "xpath=//h2[normalize-space()='Add Contact']/parent::div"
 
     def __init__(self, page: Page):
         self.page = page
@@ -16,8 +15,8 @@ class ContactsLocators:
         self.search_input = page.get_by_placeholder("Search contacts…")
         self.add_contact_button = page.get_by_role("button", name="Add Contact")
         self.sign_out_button = page.get_by_role("button", name="Sign out")
-        self.modal_heading = page.get_by_role("heading", name=self.MODAL_HEADING)
-        self.modal = page.locator(self.MODAL_ROOT_XPATH)
+        self.modal = page.get_by_role("dialog", name=self.MODAL_HEADING)
+        self.modal_heading = self.modal.get_by_role("heading", name=self.MODAL_HEADING)
         self.first_name_input = self.modal.get_by_label("First name", exact=False)
         self.last_name_input = self.modal.get_by_label("Last name", exact=False)
         self.email_input = self.modal.get_by_label("Email", exact=False)
