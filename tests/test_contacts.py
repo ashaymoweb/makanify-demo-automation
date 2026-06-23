@@ -35,6 +35,7 @@ def test_contacts_pos_002_add_contact_with_valid_data(page):
         email=RandomDataGenerator.random_email(),
         phone=phone,
         pin_code=pin_code,
+        gender="Female",
     )
     contacts_page.submit_contact_form()
     contacts_page.expect_modal_closed()

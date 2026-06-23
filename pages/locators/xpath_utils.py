@@ -31,6 +31,13 @@ def error_message(container: Locator, text: str) -> Locator:
     )
 
 
+def radio_by_label(container: Locator, group_label: str, option_text: str) -> Locator:
+    return container.locator(
+        f'xpath=.//fieldset[.//legend[contains(normalize-space(),"{group_label}")]]'
+        f'//label[contains(normalize-space(),"{option_text}")]//input[@type="radio"]'
+    )
+
+
 def text_element(container: Locator, text: str) -> Locator:
     return container.locator(
         f'xpath=.//*[normalize-space()="{text}"]'
