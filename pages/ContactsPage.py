@@ -61,9 +61,15 @@ class ContactsPage(BasePage):
 
     def expect_modal_open(self) -> None:
         expect(self.locators.modal_heading).to_be_visible()
+        expect(self.locators.first_name_input).to_be_visible()
 
     def expect_modal_closed(self) -> None:
         expect(self.locators.modal_heading).to_be_hidden()
+
+    def expect_phone_validation_error(self) -> None:
+        expect(
+            self.locators.modal_error(ContactsLocators.PHONE_VALIDATION_ERROR)
+        ).to_be_visible()
 
     def expect_contact_in_table(self, name: str, timeout: int = 20000) -> None:
         expect(self.locators.contact_cell(name)).to_be_visible(timeout=timeout)
