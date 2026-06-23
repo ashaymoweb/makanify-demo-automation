@@ -1,6 +1,4 @@
-# BDD & UI Automation Rules
-
-General reference for AI agents and developers. Cursor-specific rule files live in [`.cursor/rules/`](.cursor/rules/).
+# UI Automation Rules
 
 ---
 
