@@ -21,12 +21,6 @@ class LoginPage(BasePage):
     def fill_password(self, password: str) -> None:
         self.locators.password_input.fill(password)
 
-    def clear_email(self) -> None:
-        self.locators.email_input.clear()
-
-    def clear_password(self) -> None:
-        self.locators.password_input.clear()
-
     def click_sign_in(self) -> None:
         self.locators.sign_in_button.click()
 

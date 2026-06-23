@@ -1,112 +1,107 @@
----
-description: BDD-driven UI automation — implement from provided Excel and FE/BE code
-alwaysApply: true
----
-
-# BDD & UI Automation Workflow
-
-## Definitions
-
-- **Provided BDD file** — Excel workbook (`.xlsx`) with BDD test cases, supplied externally. **Filename is not fixed** — use whatever path/name the user, README, or task specifies. Never hardcode a specific filename in rules or code.
-
-## Mandatory: FE/BE change sync (always apply)
-
-When the user asks for **any frontend or backend code change** — new feature, bug fix, UI update, API change, validation change — you **must** update automation in the **same task**, without waiting to be asked separately.
-
-**Provided BDD file** defines **what** to automate (read-only). **FE/BE code** is the source of truth for **locators**. Never write automation from assumptions. Full sync flow: `AUTOMATION_RULES.md` → *FE/BE → automation sync flow*.
-
-**Do not create, edit, or regenerate** the provided BDD file — it is supplied externally. Report BDD/FE mismatches; do not edit Excel unless the user explicitly asks.
-
-**Required order after the app code change:**
-
-1. **Read** the modified FE/BE files — routes, components, labels, roles, validation messages, API responses.
-2. **Locate and read** the provided BDD file — identify affected rows (do not edit the file).
-3. **Update** `pages/` locators — map each BDD step to elements in the current FE markup; verify each locator resolves.
-4. **Update** `pages/` actions and `tests/` — one BDD row → one test function; tests use page methods only.
-5. **Run** affected tests against the running app; fix FE or automation until all pass.
-6. **Leave unchanged** — unrelated modules, unrelated BDD rows, and unrelated test scenarios.
-
-**Do not** consider the FE/BE task complete until steps 3–5 are done for every user-visible behavior covered by the provided BDD rows for that feature.
-
-If the change has **no UI impact** (e.g. internal refactor only), state that briefly and skip automation updates.
-
----
-
-## FE/BE → automation sync flow (summary)
-
-```
-Provided BDD file (Excel) ──┐
-                            ├──→ Locators → Page objects → Tests → Execute & pass
-FE/BE code ─────────────────┘              ↑___________________________|
-```
-
-- **Before automation:** Locate the provided BDD file; read BDD rows + FE/BE; confirm each step maps to real UI.
-- **Before FE/BE merge:** Check provided BDD + pages/tests coverage; markup changes require same-task automation sync.
-- **Never:** Edit/create the BDD file; hardcode a BDD filename; write tests/locators from assumptions; skip test execution.
-- **On failure:** Inspect FE first; align locators/tests with BDD + FE — or fix FE markup. Report BDD/FE gaps.
-
----
-
-## Workflow (in order)
-
-1. **Locate and read** the provided BDD file for the target feature (input only).
-2. **Read** FE/BE code for that feature (locator source of truth).
-3. **Implement locators** in `pages/locators/` from the current FE DOM, mapped to BDD steps.
-4. **Implement** page actions and tests from provided BDD rows.
-5. **Execute** tests; loop back until all pass.
-6. **On every FE/BE change**, repeat for affected BDD rows only.
-
-## Automation scope (strict)
-
-| Allowed | Forbidden |
-|---------|-----------|
-| `tests/` | `conftest.py` |
-| `pages/` | Provided BDD file (Excel — read-only; filename varies; do not create or edit) |
-| | Any other file or folder outside the allowed list |
-
-- Do not change existing test scenarios when adding new coverage — isolate new tests and page methods.
-- Follow the project's Playwright/Python automation conventions when writing code.
-
----
-
-## BDD file (provided input — read only)
-
-- The **provided BDD file** is supplied externally (any `.xlsx` filename) — do not generate or update it.
-- Locate the file from user, README, or task context before implementing automation.
-- One BDD row → one test function; implement only positive and negative rows as defined in the file.
-- Columns: Test Case ID, Feature, Scenario, Given, When, Then.
-- If a BDD row does not match FE/BE, **report the gap** — request an updated file from the provider.
-
-### Additional rules
-
-- While creating automation scripts, choose **only stable locators**.
-- Execute all implemented tests before considering work complete.
-- **FE/BE → automation sync:** Locators, pages, and tests derive from **provided BDD** + actual FE/BE. Full flow: `AUTOMATION_RULES.md` → *FE/BE → automation sync flow*.
-- **Testable form markup:** Full contract in `AUTOMATION_RULES.md` → *Testable form markup*.
-
----
-
-## Automation implementation (from provided BDD)
-
-- Implement **only positive and negative** rows from the **provided** BDD file as Playwright tests.
-- Do not create duplicate automation tests — review existing `tests/` files before adding; one BDD row maps to one test function.
-- Map UI interactions to `pages/` using the Page Object Model.
-- Map scenarios to `tests/` with positive and negative markers (e.g. `@pytest.mark.positive`, `@pytest.mark.negative`).
-- Define `login_with_valid_credentials()` **once** on `LoginPage` and reuse it in every test that needs authentication — do not duplicate login logic.
-- Do not use pytest fixtures for page objects or auth; instantiate page classes manually in tests and call login only when the scenario requires it.
-- Use environment variables for credentials and base URLs; never hardcode secrets.
-- Choose **only stable locators** — prefer `data-testid`, `#id`, `get_by_role`, and `get_by_placeholder`; avoid brittle XPath and text-based selectors.
-
-### Locator Management Rules
-
-- Maintain separate locator files for each page/module to ensure clear structure and maintainability.
-- Use semantic and stable relative XPath locators when application changes cannot be controlled.
-- Access locators only through page classes or test step methods; do not hardcode locators inside test cases.
-- Centralize all locator definitions so that UI changes require updates in a single location only.
-- Prefer business-oriented locators based on labels or stable attributes over indexes, CSS classes, or absolute XPath.
-- Modify existing locators only when necessary to improve stability or accommodate UI changes. Avoid unnecessary locator changes.
-- Reuse existing locators whenever possible instead of creating duplicate definitions.
-- Keep test cases independent of locator implementation details by interacting only through page objects and step methods.
-- Avoid using `nth()`, dynamic CSS classes, and absolute XPath unless no stable alternative exists.
-- Ensure locator changes are backward-compatible and do not impact unrelated test scenarios.
-
+---
+description: BDD-driven UI automation — implement from provided Excel and FE/BE code
+alwaysApply: true
+---
+
+# BDD & UI Automation Workflow
+
+## Definitions
+
+- **Provided BDD file** — Excel workbook (`.xlsx`) with BDD test cases, supplied externally. **Filename is not fixed** — use whatever path/name the user, README, or task specifies. Never hardcode a specific filename in rules or code.
+
+## Mandatory: FE/BE change sync (always apply)
+
+When the user asks for **any frontend or backend code change** — new feature, bug fix, UI update, API change, validation change — you **must** update automation in the **same task**, without waiting to be asked separately.
+
+**Provided BDD file** defines **what** to automate (read-only). **FE/BE code** is the source of truth for **locators**. Never write automation from assumptions. Full sync flow: `AUTOMATION_RULES.md` → *FE/BE → automation sync flow*.
+
+**Do not create, edit, or regenerate** the provided BDD file — it is supplied externally. Report BDD/FE mismatches; do not edit Excel unless the user explicitly asks.
+
+**Required order after the app code change:**
+
+1. **Read** the modified FE/BE files — routes, components, labels, roles, validation messages, API responses.
+2. **Locate and read** the provided BDD file — identify affected rows (do not edit the file).
+3. **Update** `pages/` locators — map each BDD step to elements in the current FE markup; verify each locator resolves.
+4. **Update** `pages/` actions and `tests/` — one BDD row → one test function; tests use page methods only.
+5. **Run** affected tests against the running app; fix FE or automation until all pass.
+6. **Leave unchanged** — unrelated modules, unrelated BDD rows, and unrelated test scenarios.
+
+**Do not** consider the FE/BE task complete until steps 3–5 are done for every user-visible behavior covered by the provided BDD rows for that feature.
+
+If the change has **no UI impact** (e.g. internal refactor only), state that briefly and skip automation updates.
+
+---
+
+## FE/BE → automation sync flow (summary)
+
+```
+Provided BDD file (Excel) ──┐
+                            ├──→ Locators → Page objects → Tests → Execute & pass
+FE/BE code ─────────────────┘              ↑___________________________|
+```
+
+- **Before automation:** Locate the provided BDD file; read BDD rows + FE/BE; confirm each step maps to real UI.
+- **Before FE/BE merge:** Check provided BDD + pages/tests coverage; markup changes require same-task automation sync.
+- **Never:** Edit/create the BDD file; hardcode a BDD filename; write tests/locators from assumptions; skip test execution.
+- **On failure:** Inspect FE first; align locators/tests with BDD + FE — or fix FE markup. Report BDD/FE gaps.
+
+---
+
+## Workflow (in order)
+
+1. **Locate and read** the provided BDD file for the target feature (input only).
+2. **Read** FE/BE code for that feature (locator source of truth).
+3. **Implement locators** in `pages/locators/` as scoped relative XPath from the current FE DOM, mapped to BDD steps.
+4. **Implement** page actions and tests from provided BDD rows.
+5. **Execute** tests; loop back until all pass.
+6. **On every FE/BE change**, repeat for affected BDD rows only.
+
+## Automation scope (strict)
+
+| Allowed | Forbidden |
+|---------|-----------|
+| `tests/` | `conftest.py` |
+| `pages/` | Provided BDD file (Excel — read-only; filename varies; do not create or edit) |
+| | Any other file or folder outside the allowed list |
+
+- Do not change existing test scenarios when adding new coverage — isolate new tests and page methods.
+- Follow the project's Playwright/Python automation conventions when writing code.
+
+---
+
+## BDD file (provided input — read only)
+
+- The **provided BDD file** is supplied externally (any `.xlsx` filename) — do not generate or update it.
+- Locate the file from user, README, or task context before implementing automation.
+- One BDD row → one test function; implement only positive and negative rows as defined in the file.
+- Columns: Test Case ID, Feature, Scenario, Given, When, Then.
+- If a BDD row does not match FE/BE, **report the gap** — request an updated file from the provider.
+
+### Additional rules
+
+- While creating automation scripts, use **XPath exclusively** per `AUTOMATION_RULES.md` → *Locator strategy rules*.
+- Execute all implemented tests before considering work complete.
+- **FE/BE → automation sync:** Locators, pages, and tests derive from **provided BDD** + actual FE/BE. Full flow: `AUTOMATION_RULES.md` → *FE/BE → automation sync flow*.
+- **Locator strategy:** XPath only — scoped, relative, semantic. Full rules: `AUTOMATION_RULES.md` → *Locator strategy rules*.
+- **Testable form markup:** FE contract for stable labels/headings that XPath can anchor on. `AUTOMATION_RULES.md` → *Testable form markup*.
+
+---
+
+## Automation implementation (from provided BDD)
+
+- Implement **only positive and negative** rows from the **provided** BDD file as Playwright tests.
+- Do not create duplicate automation tests — review existing `tests/` files before adding; one BDD row maps to one test function.
+- Map UI interactions to `pages/` using the Page Object Model.
+- Map scenarios to `tests/` with positive and negative markers (e.g. `@pytest.mark.positive`, `@pytest.mark.negative`).
+- Define `login_with_valid_credentials()` **once** on `LoginPage` and reuse it in every test that needs authentication — do not duplicate login logic.
+- Do not use pytest fixtures for page objects or auth; instantiate page classes manually in tests and call login only when the scenario requires it.
+- Use environment variables for credentials and base URLs; never hardcode secrets.
+- Use **XPath exclusively** for all UI locators — `AUTOMATION_RULES.md` → *Locator strategy rules*.
+
+### Locator strategy rules (summary)
+
+- XPath only in `pages/locators/`; access through page objects, never in tests.
+- Stable relative XPath from labels, visible text, parent-child relationships; scope to form/modal/section/table.
+- Reuse existing XPath; use `normalize-space()`; avoid absolute XPath, CSS classes, indexes, `get_by_*`, `#id`.
+- Verify each XPath resolves before merge.
+
