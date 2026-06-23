@@ -4,6 +4,7 @@ from pages.locators.xpath_utils import (
     button_by_text,
     error_message,
     input_by_label,
+    radio_by_label,
     table_cell,
     table_header,
 )
@@ -49,6 +50,9 @@ class ContactsLocators:
         self.empty_state = self.contacts_main.locator(
             f'xpath=.//p[normalize-space()="{self.EMPTY_STATE_TEXT}"]'
         )
+
+    def gender_radio(self, gender: str) -> Locator:
+        return radio_by_label(self.modal, "Gender", gender)
 
     def modal_error(self, message: str) -> Locator:
         return error_message(self.modal, message)

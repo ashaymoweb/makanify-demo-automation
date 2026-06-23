@@ -42,6 +42,7 @@ class ContactsPage(BasePage):
         email: str = "",
         phone: str = "",
         pin_code: str = "",
+        gender: str = "",
     ) -> None:
         if first_name:
             self.locators.first_name_input.fill(first_name)
@@ -53,6 +54,11 @@ class ContactsPage(BasePage):
             self.locators.phone_input.fill(phone)
         if pin_code:
             self.locators.pincode_input.fill(pin_code)
+        if gender:
+            self.locators.gender_radio(gender).check()
+
+    def select_gender(self, gender: str) -> None:
+        self.locators.gender_radio(gender).check()
 
     def submit_contact_form(self) -> None:
         self.locators.save_contact_button.click()
@@ -64,6 +70,7 @@ class ContactsPage(BasePage):
     def expect_modal_open(self) -> None:
         expect(self.locators.modal_heading).to_be_visible()
         expect(self.locators.first_name_input).to_be_visible()
+        expect(self.locators.gender_radio("Male")).to_be_checked()
 
     def expect_modal_closed(self) -> None:
         expect(self.locators.modal_heading).to_be_hidden()
