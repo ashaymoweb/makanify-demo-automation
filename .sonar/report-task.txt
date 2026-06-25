@@ -1,0 +1,6 @@
+projectKey=makanify-playwright
+serverUrl=http://localhost:9000
+serverVersion=26.6.0.123539
+dashboardUrl=http://localhost:9000/dashboard?id=makanify-playwright
+ceTaskId=db3999d3-b575-4e09-9440-fbdf23910520
+ceTaskUrl=http://localhost:9000/api/ce/task?id=db3999d3-b575-4e09-9440-fbdf23910520

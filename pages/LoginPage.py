@@ -1,11 +1,11 @@
 import os
-
+from dotenv import load_dotenv
 from playwright.sync_api import Page, expect
 
 from pages.BasePage import BasePage
 from pages.locators.login_locators import LoginLocators
 
-
+load_dotenv(".env.test")
 class LoginPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
@@ -32,8 +32,8 @@ class LoginPage(BasePage):
     def login_with_valid_credentials(self) -> None:
         """Single reusable login entry point for all authenticated test scenarios."""
         self.open_login()
-        email = os.getenv("TEST_EMAIL", "")
-        password = os.getenv("TEST_PASSWORD", "")
+        email = os.getenv("TEST_EMAIL")
+        password = os.getenv("TEST_PASSWORD")
         if not email or not password:
             raise RuntimeError(
                 "Set TEST_EMAIL and TEST_PASSWORD environment variables before running tests."
